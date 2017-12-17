@@ -1,0 +1,5 @@
+nav {
+	border: 1px solid #ced4da;
+	border-radius: .25rem;
+	transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
