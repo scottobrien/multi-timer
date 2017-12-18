@@ -19,21 +19,12 @@ function TimerContainer(name) { // Start timer
     const elDelete = document.getElementById('delete' + incrementor(timerInc));
     const elStopAlarm = document.getElementById('stopAlarm' + incrementor(timerInc));
     let pause = false;
-    let seconds = 0;
     let notification = new Audio('./mp3/notify.mp3');
     let timer = new Timer({
       tick: 1,
       ontick: function(sec) {
-        console.log(sec);
-        if (seconds <= 0 && elMin.value != 0) {
-          if (elMin.value >= 0) {
-            elMin.value = -- elMin.value;
-          }
-          seconds = 60;
-        }
-        if (elMin.value >= 0 && seconds > 0) {
-          elSec.value = --seconds;
-        }
+        elMin.value = Math.floor(sec/60000);
+        elSec.value = (Math.round(sec/1000)) - (60 * elMin.value);
       },
       onend: function() {
         elMin.value = 0;
@@ -52,21 +43,28 @@ function TimerContainer(name) { // Start timer
         timer.stop();
         time = +elMin.value * 60;
         elSec.value =  0;
-        seconds = 0;
         timer.start(time);
       },500);
     }
 
+    function showEl(el) {
+      el.setAttribute('style', 'display: inline-block;');
+    }
+
+    function hideEl(el) {
+      el.setAttribute('style', 'display: none;');
+    }
+
     elIncMin.addEventListener('click', function(e) {
       e.preventDefault();
-      if (elSec.value > 0) {
+      if (elSec.value > 0 && !pause) {
         initTimer();
       }
       elMin.value = incrementor(elMin.value);
     });
     elDecMin.addEventListener('click', function(e) {
       e.preventDefault();
-      if (elSec.value > 0) {
+      if (elSec.value > 0 && !pause) {
         initTimer();
         elMin.value = decrementor(++elMin.value);
         return;
@@ -76,11 +74,8 @@ function TimerContainer(name) { // Start timer
 
     elStart.addEventListener('click', function(e) {
       e.preventDefault();
-      if (+elMin.value === 0 && !pause) {
-        return;
-      }
-      this.setAttribute('style', 'display: none;');
-      elPause.setAttribute('style', 'display: inline-block;');
+      hideEl(this);
+      showEl(elPause);
       elMin.setAttribute('readonly', 'readonly');
       if (pause) {
         timer.start();
@@ -91,15 +86,15 @@ function TimerContainer(name) { // Start timer
     elPause.addEventListener('click', function(e) {
       e.preventDefault();
       pause = true;
-      this.setAttribute('style', 'display: none;');
+      hideEl(this);
+      showEl(elStart);
       elMin.removeAttribute('readonly');
-      elStart.setAttribute('style', 'display: inline-block;');
       timer.pause();
     });
     elReset.addEventListener('click', function(e) {
       e.preventDefault();
-      elStart.setAttribute('style', 'display: inline-block;');
-      elPause.setAttribute('style', 'display: none;');
+      showEl(elStart);
+      hideEl(elPause);
       elMin.removeAttribute('readonly');
       pause = false;
       elMin.value = 0;
@@ -115,8 +110,8 @@ function TimerContainer(name) { // Start timer
     elStopAlarm.addEventListener('click', function(e) {
       e.preventDefault();
       notification.pause();
-      elStopAlarm.setAttribute('style', 'display: none;');
-      elStart.setAttribute('style', 'display: inline-block;');
+      hideEl(this);
+      showEl(elStart);
       elMin.removeAttribute('readonly');
       elForm.removeAttribute('style');
     });
